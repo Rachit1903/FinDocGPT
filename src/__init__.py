@@ -1,0 +1,2 @@
+"""FinDocGPT application source."""
+
