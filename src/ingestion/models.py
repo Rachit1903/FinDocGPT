@@ -1,4 +1,4 @@
-"""Typed records shared by the Phase 1 ingestion pipeline."""
+"""Typed records shared by ingestion, retrieval, and the agent."""
 
 from __future__ import annotations
 
@@ -17,40 +17,40 @@ class Filing:
     primary_document: str
     source_url: str
 
+    @property
+    def fiscal_year(self) -> int:
+        # The period-of-report year is the fiscal year label every filer uses in its 10-K.
+        return int((self.report_date or self.filing_date)[:4])
+
 
 @dataclass(frozen=True)
-class ProseChunk:
+class Chunk:
+    """One retrievable unit: a section-aware prose passage or a (slice of a) normalized table."""
+
     chunk_id: str
-    text: str
+    kind: str  # "prose" | "table"
     ticker: str
-    cik: str
-    filing_type: str
-    filing_date: str
+    company: str
+    form: str
+    fiscal_year: int
     report_date: str | None
-    section: str
+    filing_date: str
+    item: str
+    subsection: str
+    context: str
+    text: str
+    table: dict[str, Any] | None
     source_url: str
     token_estimate: int
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
+    @property
+    def indexed_text(self) -> str:
+        """What BM25, the embedder, and the reranker see: header + body."""
+        return f"{self.context}\n{self.text}"
 
-@dataclass(frozen=True)
-class TableManifest:
-    table_id: str
-    parquet_path: str
-    ticker: str
-    cik: str
-    filing_type: str
-    filing_date: str
-    report_date: str | None
-    title: str
-    section: str
-    source_url: str
-    rows: int
-    columns: int
-    column_names: list[str]
-
-    def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
-
+    @classmethod
+    def from_dict(cls, record: dict[str, Any]) -> "Chunk":
+        return cls(**record)

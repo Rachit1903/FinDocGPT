@@ -2,6 +2,14 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
-data/raw_filings/
-data/processed/
+.venv/
 
+# Derived data is rebuilt by `python -m src.ingestion.run_ingestion` and `python -m src.retrieval.build_index`.
+# The filings manifest is committed so the exact 10-K documents (accession numbers) are pinned.
+data/*
+!data/raw_filings/
+data/raw_filings/*
+!data/raw_filings/filings_manifest.jsonl
+
+frontend/node_modules/
+frontend/dist/

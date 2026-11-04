@@ -1,0 +1,322 @@
+[
+  {
+    "id": "eval-01", "category": "factual", "tickers": ["AAPL"],
+    "question": "What did Apple identify as the main drivers of Services net sales in fiscal 2025?",
+    "reference_answer": "Apple said Services net sales increased in 2025 compared to 2024 primarily due to higher net sales from advertising, the App Store and cloud services.",
+    "key_facts": ["advertising", "App Store", "cloud services"],
+    "evidence": ["Services net sales increased during 2025 compared to 2024 primarily due to higher net sales from advertising, the App Store and cloud services."]
+  },
+  {
+    "id": "eval-02", "category": "factual", "tickers": ["AAPL"],
+    "question": "What risk factors did Apple disclose regarding supply-chain concentration?",
+    "reference_answer": "Apple disclosed that a significant majority of its manufacturing is performed by outsourcing partners located primarily in China mainland, India, Japan, South Korea, Taiwan and Vietnam; that it relies on single-source partners in the U.S., Asia and Europe for many components; and that final assembly of substantially all hardware products is done by partners primarily in Asia, so disruptions, trade restrictions or tariffs affecting these partners could materially harm the business.",
+    "key_facts": ["manufacturing performed by outsourcing partners primarily in China mainland, India, Japan, South Korea, Taiwan and Vietnam", "relies on single-source partners for many components", "final assembly of substantially all hardware products by partners primarily in Asia"],
+    "evidence": ["The Company relies on single-source partners in the U.S., Asia and Europe to supply and manufacture many components", "A significant majority of the Company's manufacturing is performed in whole or in part by outsourcing partners located primarily in China mainland, India, Japan, South Korea, Taiwan and Vietnam"]
+  },
+  {
+    "id": "eval-03", "category": "comparison", "tickers": ["AAPL"],
+    "question": "Compare Apple's Products and Services gross-margin percentages in fiscal 2025.",
+    "reference_answer": "In fiscal 2025 Apple's Services gross margin percentage was 75.4%, roughly double the Products gross margin percentage of 36.8% (total gross margin percentage was 46.9%).",
+    "key_facts": ["Products gross margin percentage 36.8%", "Services gross margin percentage 75.4%"],
+    "evidence": ["| Products | 36.8% | 37.2% | 36.5% |", "| Services | 75.4% | 73.9% | 70.8% |"]
+  },
+  {
+    "id": "eval-04", "category": "computation", "tickers": ["AAPL"],
+    "question": "Calculate the change in Apple's total gross-margin percentage from 2024 to 2025.",
+    "reference_answer": "Apple's total gross margin percentage rose from 46.2% in 2024 to 46.9% in 2025, an increase of 0.7 percentage points.",
+    "key_facts": ["46.2% in 2024", "46.9% in 2025", "+0.7 percentage points"],
+    "evidence": ["| Total gross margin percentage | 46.9% | 46.2% | 44.1% |"],
+    "expected_value": {"value": 0.7, "unit": "pp"}
+  },
+  {
+    "id": "eval-05", "category": "factual", "tickers": ["AMZN"],
+    "question": "What factors did Amazon cite for the change in North America operating income in the latest annual filing?",
+    "reference_answer": "North America operating income increased in 2025 primarily due to increased unit sales and increased advertising sales, partially offset by increased fulfillment, technology and infrastructure, shipping, and other operating costs; foreign exchange reduced operating income by $204 million.",
+    "key_facts": ["increased unit sales", "increased advertising sales", "partially offset by increased fulfillment, technology and infrastructure, shipping and other operating costs"],
+    "evidence": ["The increase in North America operating income in 2025, compared to the prior year, is primarily due to increased unit sales and increased advertising sales"]
+  },
+  {
+    "id": "eval-06", "category": "factual", "tickers": ["AMZN"],
+    "question": "What did Amazon disclose about AWS revenue growth drivers?",
+    "reference_answer": "AWS sales increased 20% in 2025; the growth primarily reflects increased customer usage, partially offset by pricing changes primarily driven by long-term customer contracts.",
+    "key_facts": ["AWS sales increased 20%", "increased customer usage", "partially offset by pricing changes driven by long-term customer contracts"],
+    "evidence": ["AWS sales increased 20% in 2025, compared to the prior year. The sales growth primarily reflects increased customer usage"]
+  },
+  {
+    "id": "eval-07", "category": "comparison", "tickers": ["AMZN"],
+    "question": "Compare Amazon's North America and International segment operating results.",
+    "reference_answer": "North America is far larger: 2025 net sales of $426.3 billion and operating income of $29.6 billion (up from $25.0 billion), versus International net sales of $161.9 billion and operating income of $4.75 billion (up from $3.8 billion). Both increases were attributed primarily to increased unit sales and advertising sales, partially offset by higher fulfillment and shipping costs.",
+    "key_facts": ["North America operating income $29.6 billion in 2025", "International operating income $4.75 billion in 2025", "both increased year over year"],
+    "evidence": ["| Operating income | $14,877 | $24,967 | $29,619 |", "| Operating income (loss) | $(2,656) | $3,792 | $4,750 |"]
+  },
+  {
+    "id": "eval-08", "category": "computation", "tickers": ["AMZN"],
+    "question": "Calculate Amazon's year-over-year AWS net-sales growth using the relevant segment table.",
+    "reference_answer": "AWS net sales grew from $107,556 million in 2024 to $128,725 million in 2025, a 19.7% increase (reported as 20%).",
+    "key_facts": ["$107,556 million in 2024", "$128,725 million in 2025", "19.7% growth"],
+    "evidence": ["| AWS | 107,556 | 128,725 |"],
+    "expected_value": {"value": 19.68, "unit": "%"}
+  },
+  {
+    "id": "eval-09", "category": "factual", "tickers": ["GOOGL"],
+    "question": "What drove Google Services revenue growth in the latest annual filing?",
+    "reference_answer": "Google Search & other revenues rose $26.4 billion, driven by more search queries from user adoption and usage on mobile devices, growth in advertiser spending, and improvements in ad formats and delivery; YouTube ads revenues rose $4.2 billion driven by direct response and brand advertising; Google Network revenues declined $567 million.",
+    "key_facts": ["increase in search queries", "growth in advertiser spending", "improvements in ad formats and delivery", "YouTube ads growth"],
+    "evidence": ["The overall growth was driven by interrelated factors including increases in search queries resulting from growth in user adoption and usage on mobile devices; growth in advertiser spending; and improvements we have made in ad formats and delivery."]
+  },
+  {
+    "id": "eval-10", "category": "factual", "tickers": ["GOOGL"],
+    "question": "What did Alphabet disclose about AI infrastructure investment?",
+    "reference_answer": "Alphabet invested heavily in capital expenditures to scale technical infrastructure, in particular for AI; capital expenditures were $91.4 billion in 2025, and it expects to significantly increase investment in servers, network equipment and data centers in 2026, with related depreciation, energy and capacity costs also expected to rise significantly.",
+    "key_facts": ["capital expenditures of $91.4 billion in 2025", "expects to significantly increase technical infrastructure investment in 2026", "costs of operating technical infrastructure expected to increase significantly"],
+    "evidence": ["Capital expenditures, which primarily reflected investments in technical infrastructure, were $91.4 billion for the year ended December 31, 2025.", "We invested heavily in capital expenditures in 2025 and in 2026, we expect to significantly increase, relative to 2025, our investment in our technical infrastructure"]
+  },
+  {
+    "id": "eval-11", "category": "comparison", "tickers": ["GOOGL"],
+    "question": "Compare Google Services and Google Cloud operating income trends.",
+    "reference_answer": "Google Services operating income grew from $121.3 billion in 2024 to $139.4 billion in 2025 (about +15%), while Google Cloud operating income more than doubled from $6.1 billion to $13.9 billion; Services remains far larger, but Cloud is growing much faster.",
+    "key_facts": ["Google Services operating income $121.3B to $139.4B", "Google Cloud operating income $6.1B to $13.9B", "Cloud growing faster"],
+    "evidence": ["| Google Services | $121,263 | $139,404 |", "| Google Cloud | 6,112 | 13,910 |"]
+  },
+  {
+    "id": "eval-12", "category": "computation", "tickers": ["GOOGL"],
+    "question": "Calculate Google Cloud's operating-margin change between the two latest annual periods.",
+    "reference_answer": "Google Cloud operating margin rose from 14.1% in 2024 ($6,112M / $43,229M) to 23.7% in 2025 ($13,910M / $58,705M), an increase of about 9.6 percentage points.",
+    "key_facts": ["14.1% in 2024", "23.7% in 2025", "+9.6 percentage points"],
+    "evidence": ["| Google Cloud | 33,088 | 43,229 | 58,705 |", "| Google Cloud | 1,716 | 6,112 | 13,910 |"],
+    "expected_value": {"value": 9.56, "unit": "pp"}
+  },
+  {
+    "id": "eval-13", "category": "factual", "tickers": ["META"],
+    "question": "What did Meta attribute to the change in advertising revenue?",
+    "reference_answer": "Advertising revenue increased $35.54 billion, or 22%, in 2025 due to increases in ad impressions delivered (up 12%) and average price per ad (up 9%).",
+    "key_facts": ["advertising revenue increased 22%", "ad impressions up 12%", "average price per ad up 9%"],
+    "evidence": ["Advertising revenue in 2025 increased $35.54 billion, or 22%, compared to 2024 due to increases in ad impressions delivered and average price per ad."]
+  },
+  {
+    "id": "eval-14", "category": "factual", "tickers": ["META"],
+    "question": "What did Meta disclose about Reality Labs operating losses?",
+    "reference_answer": "Reality Labs reduced Meta's 2025 operating profit by about $19.19 billion; RL loss from operations increased $1.46 billion (8%) driven by higher employee compensation, estimated losses on non-cancelable RL inventory purchase commitments and technology development costs, and Meta expects 2026 RL operating losses to remain similar to 2025.",
+    "key_facts": ["RL reduced operating profit by about $19.19 billion", "loss increased $1.46 billion or 8%", "expects 2026 RL losses similar to 2025"],
+    "evidence": ["RL loss from operations in 2025 increased $1.46 billion, or 8%, compared to 2024", "we expect our 2026 RL operating losses to remain similar to 2025"]
+  },
+  {
+    "id": "eval-15", "category": "comparison", "tickers": ["META"],
+    "question": "Compare Meta's Family of Apps and Reality Labs operating performance.",
+    "reference_answer": "Family of Apps earned $102.5 billion of operating income in 2025 (up 18% from $87.1 billion), while Reality Labs lost $19.2 billion (loss widened 8% from $17.7 billion); FoA funds the company's profitability while RL remains deeply loss-making.",
+    "key_facts": ["Family of Apps operating income $102.5 billion", "Reality Labs operating loss $19.2 billion", "FoA up 18%, RL loss up 8%"],
+    "evidence": ["| Family of Apps | $102,469 | $87,109 | $62,871 | 18% | 39% |", "| Reality Labs | (19,193) | (17,729) | (16,120) | (8)% | (10)% |"]
+  },
+  {
+    "id": "eval-16", "category": "computation", "tickers": ["META"],
+    "question": "Calculate Meta's revenue growth rate between the two latest annual periods.",
+    "reference_answer": "Meta's total revenue grew from $164,501 million in 2024 to $200,966 million in 2025, a 22.2% increase.",
+    "key_facts": ["$164,501 million in 2024", "$200,966 million in 2025", "22.2% growth"],
+    "evidence": ["Total revenue for 2025 was $200.97 billion, an increase of 22% compared to 2024"],
+    "expected_value": {"value": 22.17, "unit": "%"}
+  },
+  {
+    "id": "eval-17", "category": "factual", "tickers": ["NFLX"],
+    "question": "What factors did Netflix cite for revenue growth in the latest annual filing?",
+    "reference_answer": "Revenues increased 16% in 2025 primarily due to growth in memberships, price increases, and increased advertising revenue, partially offset by unfavorable foreign exchange changes net of hedging.",
+    "key_facts": ["growth in memberships", "price increases", "increased advertising revenue", "partially offset by unfavorable foreign exchange"],
+    "evidence": ["primarily due to the growth in memberships, price increases, and increased advertising revenue, partially offset by unfavorable changes in foreign exchange rates, net of hedging."]
+  },
+  {
+    "id": "eval-18", "category": "factual", "tickers": ["NFLX"],
+    "question": "What did Netflix disclose about content obligations and spending?",
+    "reference_answer": "Netflix had total content obligations of about $24.0 billion as of December 31, 2025: $4.1 billion in current content liabilities, $1.6 billion in non-current content liabilities, and $18.4 billion not yet on the balance sheet. Content obligations cover acquisition, licensing and production of content, and payments for content assets increased $705 million in 2025.",
+    "key_facts": ["total content obligations about $24.0 billion", "$18.4 billion not reflected on the balance sheet", "obligations cover acquisition, licensing and production of content"],
+    "evidence": ["$18.4 billion of obligations that are not reflected on the Consolidated Balance Sheets", "| Total content obligations | $24,039,228 | $23,248,931 |"]
+  },
+  {
+    "id": "eval-19", "category": "comparison", "tickers": ["NFLX"],
+    "question": "Compare Netflix's operating margin across the two latest annual periods.",
+    "reference_answer": "Netflix's operating margin rose from 26.7% in 2024 to 29.5% in 2025, a 2.8 percentage point improvement, as operating income grew 28% to $13.3 billion.",
+    "key_facts": ["26.7% in 2024", "29.5% in 2025", "improved 2.8 points"],
+    "evidence": ["| Operating margin | 29.5% | 26.7% | 20.6% |"]
+  },
+  {
+    "id": "eval-20", "category": "computation", "tickers": ["NFLX"],
+    "question": "Calculate Netflix's operating-margin percentage-point change year over year.",
+    "reference_answer": "Netflix's operating margin increased from 26.7% in 2024 to 29.5% in 2025, a change of +2.8 percentage points.",
+    "key_facts": ["26.7% in 2024", "29.5% in 2025", "+2.8 percentage points"],
+    "evidence": ["| Operating margin | 29.5% | 26.7% | 20.6% |"],
+    "expected_value": {"value": 2.8, "unit": "pp"}
+  },
+  {
+    "id": "eval-21", "category": "factual", "tickers": ["MSFT"],
+    "question": "What did Microsoft attribute to Azure revenue growth?",
+    "reference_answer": "Azure and other cloud services revenue grew 34% in fiscal 2025, driven by demand for Microsoft's portfolio of services.",
+    "key_facts": ["Azure and other cloud services revenue grew 34%", "driven by demand for its portfolio of services"],
+    "evidence": ["Azure and other cloud services revenue grew 34% driven by demand for our portfolio of services."]
+  },
+  {
+    "id": "eval-22", "category": "factual", "tickers": ["MSFT"],
+    "question": "What did Microsoft say caused the gross-margin percentage change?",
+    "reference_answer": "Microsoft's gross margin percentage decreased slightly, driven by Intelligent Cloud and offset in part by More Personal Computing; Microsoft Cloud gross margin percentage decreased to 69% due to the impact of scaling AI infrastructure, offset in part by efficiency gains in Azure.",
+    "key_facts": ["gross margin percentage decreased slightly", "driven by Intelligent Cloud", "impact of scaling AI infrastructure"],
+    "evidence": ["Gross margin percentage decreased slightly driven by Intelligent Cloud, offset in part by More Personal Computing."]
+  },
+  {
+    "id": "eval-23", "category": "comparison", "tickers": ["MSFT"],
+    "question": "Compare the gross-margin drivers for Microsoft's Productivity and Business Processes versus Intelligent Cloud segments.",
+    "reference_answer": "Productivity and Business Processes gross margin rose $11.2 billion (13%) driven by Microsoft 365 Commercial cloud, with its percentage down slightly due to scaling AI infrastructure, offset in part by M365 Commercial cloud efficiency. Intelligent Cloud gross margin rose $8.2 billion (14%) driven by Azure, with its percentage decreasing due to scaling AI infrastructure, offset in part by Azure efficiency gains.",
+    "key_facts": ["P&BP gross margin growth driven by Microsoft 365 Commercial cloud", "Intelligent Cloud gross margin growth driven by Azure", "both percentages pressured by scaling AI infrastructure"],
+    "evidence": ["Gross margin increased $11.2 billion or 13% driven by growth in Microsoft 365 Commercial cloud.", "Gross margin increased $8.2 billion or 14% driven by growth in Azure."]
+  },
+  {
+    "id": "eval-24", "category": "computation", "tickers": ["MSFT"],
+    "question": "Calculate the change in Microsoft total gross-margin percentage between the two latest annual periods.",
+    "reference_answer": "Microsoft's gross margin percentage fell from 69.8% in fiscal 2024 ($171,008M / $245,122M) to 68.8% in fiscal 2025 ($193,893M / $281,724M), a decline of about 0.9 percentage points.",
+    "key_facts": ["69.8% in fiscal 2024", "68.8% in fiscal 2025", "-0.9 percentage points"],
+    "evidence": ["| Gross margin | 193,893 | 171,008 | 13% |", "| Revenue | $281,724 | $245,122 | 15% |"],
+    "expected_value": {"value": -0.94, "unit": "pp"}
+  },
+  {
+    "id": "eval-25", "category": "factual", "tickers": ["NVDA"],
+    "question": "What did NVIDIA identify as the drivers of Data Center revenue growth?",
+    "reference_answer": "Data Center revenue rose 68% in fiscal 2026, driven by the major platform shifts to accelerated computing and AI, with demand for data center compute and networking platforms; Blackwell architectures represented the majority of Data Center revenue.",
+    "key_facts": ["Data Center revenue up 68%", "accelerated computing and AI platform shifts", "Blackwell majority of Data Center revenue"],
+    "evidence": ["Data Center revenue for fiscal year 2026 was up 68% from a year ago. The strong year-on-year growth was driven by the major platform shifts"]
+  },
+  {
+    "id": "eval-26", "category": "factual", "tickers": ["NVDA"],
+    "question": "What did NVIDIA disclose about inventory provisions or purchase obligations?",
+    "reference_answer": "NVIDIA incurred a $4.5 billion charge in the first quarter of fiscal 2026 for H20 excess inventory and purchase obligations after U.S. export requirements reduced H20 demand, which also weighed on gross margin; it warns that growing purchase obligations and prepaids and supply commitments exceeding demand could lead to further inventory provisions or impairments.",
+    "key_facts": ["$4.5 billion charge for H20 excess inventory and purchase obligations", "H20 demand diminished due to export requirements", "risk of further inventory provisions if commitments exceed demand"],
+    "evidence": ["we incurred a $4.5 billion charge in the first quarter of fiscal year 2026 associated with H20 for excess inventory and purchase obligations"]
+  },
+  {
+    "id": "eval-27", "category": "comparison", "tickers": ["NVDA"],
+    "question": "Compare NVIDIA's Data Center and Gaming revenue trends.",
+    "reference_answer": "In fiscal 2026 Data Center revenue grew 68%, driven by accelerated computing and AI, while Gaming revenue grew 41%, driven by strong Blackwell demand; NVIDIA expects supply constraints to be a headwind to Gaming in early fiscal 2027.",
+    "key_facts": ["Data Center up 68%", "Gaming up 41%", "Gaming growth driven by Blackwell demand"],
+    "evidence": ["Data Center revenue for fiscal year 2026 was up 68% from a year ago.", "Gaming revenue for fiscal year 2026 was up 41% from a year ago, driven by strong Blackwell demand."]
+  },
+  {
+    "id": "eval-28", "category": "computation", "tickers": ["NVDA"],
+    "question": "Calculate NVIDIA's gross-margin percentage change year over year.",
+    "reference_answer": "NVIDIA's gross margin fell from 75.0% in fiscal 2025 to 71.1% in fiscal 2026, a decline of 3.9 percentage points.",
+    "key_facts": ["75.0% in fiscal 2025", "71.1% in fiscal 2026", "-3.9 percentage points"],
+    "evidence": ["| Gross margin | 71.1% | 75.0% | -3.9 pts |"],
+    "expected_value": {"value": -3.9, "unit": "pp"}
+  },
+  {
+    "id": "eval-29", "category": "factual", "tickers": ["CRM"],
+    "question": "What did Salesforce attribute to subscription and support revenue growth?",
+    "reference_answer": "The increase in subscription and support revenues in fiscal 2026 was primarily caused by volume-driven increases from new business, including new customers, upgrades and additional subscriptions from existing customers; pricing was not a significant driver.",
+    "key_facts": ["volume-driven increases from new business", "new customers, upgrades and additional subscriptions", "pricing not a significant driver"],
+    "evidence": ["The increase in subscription and support revenues for fiscal 2026 was primarily caused by volume-driven increases from new business"]
+  },
+  {
+    "id": "eval-30", "category": "factual", "tickers": ["CRM"],
+    "question": "What did Salesforce disclose about remaining performance obligations?",
+    "reference_answer": "Total remaining performance obligation was about $72.4 billion as of January 31, 2026, up 14% year over year, and current remaining performance obligation was about $35.1 billion, up 16%; RPO represents all future contracted revenue not yet recognized (unearned and unbilled amounts).",
+    "key_facts": ["total RPO about $72.4 billion, up 14%", "current RPO about $35.1 billion, up 16%", "future revenue under contract not yet recognized"],
+    "evidence": ["as of January 31, 2026 was approximately $72.4 billion, an increase of 14 percent year-over-year"]
+  },
+  {
+    "id": "eval-31", "category": "comparison", "tickers": ["CRM"],
+    "question": "Compare Salesforce's subscription-and-support revenue with professional-services revenue trends.",
+    "reference_answer": "Subscription and support revenue grew 10% to $39.4 billion in fiscal 2026 (95% of revenue), while professional services and other revenue declined 4% to $2.1 billion.",
+    "key_facts": ["subscription and support up 10% to $39.4 billion", "professional services down 4% to $2.1 billion"],
+    "evidence": ["| Subscription and support | $39,388 | $35,679 | $3,709 | 10% |", "| Professional services and other | 2,137 | 2,216 | (79) | (4) |"]
+  },
+  {
+    "id": "eval-32", "category": "computation", "tickers": ["CRM"],
+    "question": "Calculate Salesforce's operating-margin change between the two latest annual periods.",
+    "reference_answer": "Salesforce's operating margin rose from 19.0% in fiscal 2025 ($7,205M / $37,895M) to 20.1% in fiscal 2026 ($8,331M / $41,525M), an increase of about 1.0 percentage point.",
+    "key_facts": ["19.0% in fiscal 2025", "20.1% in fiscal 2026", "+1.0 percentage point"],
+    "evidence": ["| Income from operations | 8,331 | 20 | 7,205 | 19 | 5,011 | 14 |"],
+    "expected_value": {"value": 1.05, "unit": "pp"}
+  },
+  {
+    "id": "eval-33", "category": "factual", "tickers": ["ADBE"],
+    "question": "What did Adobe attribute to Digital Media segment revenue growth?",
+    "reference_answer": "Digital Media revenue grew 11% to $17.65 billion, due to subscription revenue growth driven by strength in Creative Cloud Pro and other flagship apps as well as Acrobat across all routes to market and geographies; Digital Media ARR grew 11.5% to $19.20 billion.",
+    "key_facts": ["Digital Media revenue up 11% to $17.65 billion", "Creative Cloud Pro and flagship apps", "Acrobat"],
+    "evidence": ["The increase in subscription revenue for the Digital Media segment was driven by strength in Creative Cloud Pro and other flagship apps as well as Acrobat"]
+  },
+  {
+    "id": "eval-34", "category": "factual", "tickers": ["ADBE"],
+    "question": "What did Adobe disclose about the impact of generative AI on its products or strategy?",
+    "reference_answer": "Adobe's strategy centers on AI-powered solutions: it builds its own commercially safe Firefly foundation models for generation and editing, integrates third-party partner models so customers can choose models within its apps, and offers AI-first and integrated solutions such as GenStudio and Firefly Services across creative and marketing workflows.",
+    "key_facts": ["commercially safe Firefly models", "partner/third-party models offered", "GenStudio and Firefly Services"],
+    "evidence": ["We build our own creativity-focused, commercially safe Firefly foundation models for generation and editing across categories."]
+  },
+  {
+    "id": "eval-35", "category": "comparison", "tickers": ["ADBE"],
+    "question": "Compare Adobe's Digital Media and Digital Experience segment revenue trends.",
+    "reference_answer": "Digital Media revenue grew 11% from $15.86 billion to $17.65 billion (74% of total revenue), while Digital Experience grew 9% from $5.37 billion to $5.86 billion (25% of revenue); both were driven by subscription revenue growth.",
+    "key_facts": ["Digital Media up 11% to $17.65 billion", "Digital Experience up 9% to $5.86 billion"],
+    "evidence": ["| Digital Media | $17,649 | $15,864 | $14,216 | 11% |", "| Digital Experience | 5,864 | 5,366 | 4,893 | 9% |"]
+  },
+  {
+    "id": "eval-36", "category": "computation", "tickers": ["ADBE"],
+    "question": "Calculate Adobe's total revenue growth rate between the two latest annual periods.",
+    "reference_answer": "Adobe's total revenue grew from $21,505 million in fiscal 2024 to $23,769 million in fiscal 2025, a 10.5% increase.",
+    "key_facts": ["$21,505 million in fiscal 2024", "$23,769 million in fiscal 2025", "10.5% growth"],
+    "evidence": ["| Total revenue | $23,769 | $21,505 | $19,409 | 11% |"],
+    "expected_value": {"value": 10.53, "unit": "%"}
+  },
+  {
+    "id": "eval-37", "category": "factual", "tickers": ["UBER"],
+    "question": "What did Uber identify as drivers of Mobility gross bookings growth?",
+    "reference_answer": "Mobility Gross Bookings grew 19% year over year on a constant-currency basis, primarily due to an increase in Mobility trip volumes.",
+    "key_facts": ["Mobility Gross Bookings grew 19% (constant currency)", "increase in Mobility trip volumes"],
+    "evidence": ["Mobility Gross Bookings grew 19% year-over-year, on a constant currency basis, primarily due to an increase in Mobility Trip volumes."]
+  },
+  {
+    "id": "eval-38", "category": "factual", "tickers": ["UBER"],
+    "question": "What did Uber disclose about its profitability or operating-income change?",
+    "reference_answer": "Uber's income from operations rose 99% from $2.8 billion in 2024 to $5.6 billion in 2025, while revenue grew 18% to $52.0 billion; net income attributable to Uber was $10.1 billion (up 2%) and Adjusted EBITDA rose 35% to $8.7 billion.",
+    "key_facts": ["income from operations $2.8 billion to $5.6 billion", "up 99%", "Adjusted EBITDA up 35% to $8.7 billion"],
+    "evidence": ["| Income from operations | $2,799 | $5,565 | 99% |"]
+  },
+  {
+    "id": "eval-39", "category": "comparison", "tickers": ["UBER"],
+    "question": "Compare Uber's Mobility and Delivery segment revenue trends.",
+    "reference_answer": "Mobility revenue grew 18% from $25.1 billion to $29.7 billion, while Delivery revenue grew faster, 25%, from $13.8 billion to $17.2 billion; Mobility remains the larger segment.",
+    "key_facts": ["Mobility revenue up 18% to $29.7 billion", "Delivery revenue up 25% to $17.2 billion", "Delivery grew faster"],
+    "evidence": ["| Mobility | $25,087 | $29,670 | 18% |", "| Delivery | 13,750 | 17,248 | 25% |"]
+  },
+  {
+    "id": "eval-40", "category": "computation", "tickers": ["UBER"],
+    "question": "Calculate Uber's year-over-year total revenue growth using the annual filing table.",
+    "reference_answer": "Uber's total revenue grew from $43,978 million in 2024 to $52,017 million in 2025, an 18.3% increase.",
+    "key_facts": ["$43,978 million in 2024", "$52,017 million in 2025", "18.3% growth"],
+    "evidence": ["| Total revenue | $43,978 | $52,017 | 18% |"],
+    "expected_value": {"value": 18.28, "unit": "%"}
+  },
+  {
+    "id": "una-01", "category": "unanswerable", "tickers": [],
+    "question": "What was Tesla's automotive gross margin in 2025?",
+    "reference_answer": "Not answerable: Tesla is not among the filings in the corpus.",
+    "key_facts": [], "evidence": []
+  },
+  {
+    "id": "una-02", "category": "unanswerable", "tickers": ["NFLX"],
+    "question": "What paid-membership target did Netflix set for 2030?",
+    "reference_answer": "Not answerable: Netflix's 10-K does not state a 2030 paid-membership target.",
+    "key_facts": [], "evidence": []
+  },
+  {
+    "id": "una-03", "category": "unanswerable", "tickers": ["AAPL"],
+    "question": "What was Apple's iPhone net sales in fiscal 2018?",
+    "reference_answer": "Not answerable: the fiscal 2025 10-K only reports fiscal 2023-2025.",
+    "key_facts": [], "evidence": []
+  },
+  {
+    "id": "una-04", "category": "unanswerable", "tickers": ["UBER"],
+    "question": "How much cash bonus did Uber pay its CEO for 2025?",
+    "reference_answer": "Not answerable: executive compensation is incorporated by reference from the proxy statement, not disclosed in the 10-K.",
+    "key_facts": [], "evidence": []
+  },
+  {
+    "id": "una-05", "category": "unanswerable", "tickers": ["NVDA"],
+    "question": "What Data Center revenue does NVIDIA forecast for fiscal 2028?",
+    "reference_answer": "Not answerable: NVIDIA's 10-K gives no fiscal 2028 Data Center revenue forecast.",
+    "key_facts": [], "evidence": []
+  }
+]

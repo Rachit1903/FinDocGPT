@@ -1,1 +1,1 @@
-"""Evaluation dataset and RAGAS runner."""
+"""Evaluation: hand-verified gold set, metrics, runners."""

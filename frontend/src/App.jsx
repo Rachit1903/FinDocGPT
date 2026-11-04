@@ -1,56 +1,55 @@
 import { useMemo, useState } from 'react';
 
 const SAMPLE_QUERIES = [
-  "What did Apple say about its services business?",
-  'Compare Apple and Microsoft gross-margin discussion.',
-  "Calculate how Apple's total gross margin percentage changed from 2024 to 2025.",
+  'What did Apple identify as the main drivers of Services net sales in fiscal 2025?',
+  "Compare Google Services and Google Cloud operating income trends.",
+  "Calculate Google Cloud's operating-margin change between the two latest annual periods.",
 ];
 
-function formatMeta(metadata) {
-  const fields = ['ticker', 'filing_type', 'filing_date', 'section'];
-  return fields
-    .map((field) => metadata?.[field])
-    .filter(Boolean)
-    .join(' · ');
+function Citations({ text }) {
+  // Render "[S3]" markers as small badges.
+  const parts = text.split(/(\[S\d+\])/g);
+  return parts.map((part, i) =>
+    /^\[S\d+\]$/.test(part) ? <sup key={i} className="cite">{part.slice(1, -1)}</sup> : <span key={i}>{part}</span>,
+  );
 }
 
-function SourceCard({ source, index }) {
-  const meta = formatMeta(source.metadata);
-
+function SourceCard({ source, open }) {
+  const meta = [source.ticker, source.fiscal_year && `FY${source.fiscal_year}`, source.item, source.subsection]
+    .filter(Boolean)
+    .join(' · ');
   return (
-    <details className="source-card" open={index === 0}>
+    <details className="source-card" open={open}>
       <summary>
         <div>
-          <span className="source-pill">Source {index + 1}</span>
+          <span className="source-pill">{source.label}</span>
           <strong>{source.chunk_id}</strong>
           {meta ? <p>{meta}</p> : null}
         </div>
         <div className="source-stats">
-          {source.reranked_rank ? <span>Rank #{source.reranked_rank}</span> : null}
-          {typeof source.rrf_score === 'number' ? <span>RRF {source.rrf_score.toFixed(3)}</span> : null}
+          <span>{source.kind}</span>
+          {typeof source.rerank_score === 'number' ? <span>rerank {source.rerank_score.toFixed(2)}</span> : null}
         </div>
       </summary>
-      <pre>{source.text}</pre>
+      <pre className="source-content">{source.text}</pre>
     </details>
   );
 }
 
-function VerdictSummary({ verdicts }) {
-  const supported = verdicts.filter((verdict) => verdict.supported);
-  const unsupported = verdicts.filter((verdict) => !verdict.supported);
-
+function Trace({ trace }) {
   return (
-    <div className="verdict-grid">
-      <div className="verdict-box success">
-        <span>Supported claims</span>
-        <strong>{supported.length}</strong>
-      </div>
-      <div className="verdict-box warning">
-        <span>Removed claims</span>
-        <strong>{unsupported.length}</strong>
-      </div>
-      {unsupported.length ? <p className="verdict-note">Unsupported claims were stripped before the answer was returned.</p> : null}
-    </div>
+    <ol className="trace">
+      {trace.map((step, i) => (
+        <li key={i}>
+          <strong>{step.step}</strong> <span className="muted">{step.ms} ms</span>
+          {step.step === 'plan' ? <p>route: {step.route} · companies: {step.tickers.join(', ') || '—'} · {step.sub_queries.length} sub-queries</p> : null}
+          {step.step === 'rewrite' ? <p>rewrote {Object.keys(step.rewrites).length} weak sub-quer{Object.keys(step.rewrites).length === 1 ? 'y' : 'ies'}</p> : null}
+          {step.step === 'calculate' ? <p>{step.result || 'no grounded calculation'} ({step.attempts.length} attempt{step.attempts.length === 1 ? '' : 's'})</p> : null}
+          {step.step === 'verify' ? <p>{step.kept} supported, {step.removed} rejected{step.revising ? ' → sent back for revision' : ''}</p> : null}
+          {step.step === 'revise' ? <p>rewrote the answer to address {step.objections} objection(s)</p> : null}
+        </li>
+      ))}
+    </ol>
   );
 }
 
@@ -59,30 +58,21 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [response, setResponse] = useState(null);
-
   const apiBase = useMemo(() => (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, ''), []);
 
-  async function runQuery(nextQuery = query) {
-    const trimmed = nextQuery.trim();
-    if (!trimmed || loading) {
-      return;
-    }
-
+  async function runQuery() {
+    const trimmed = query.trim();
+    if (!trimmed || loading) return;
     setLoading(true);
     setError('');
-
     try {
       const res = await fetch(`${apiBase}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: trimmed, k: 5 }),
+        body: JSON.stringify({ query: trimmed }),
       });
-
       const payload = await res.json();
-      if (!res.ok) {
-        throw new Error(payload?.detail || 'Request failed.');
-      }
-
+      if (!res.ok) throw new Error(payload?.detail || 'Request failed.');
       setResponse(payload);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unexpected error.');
@@ -93,18 +83,14 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <div className="ambient ambient-left" />
-      <div className="ambient ambient-right" />
-
       <main className="layout">
         <section className="hero panel">
-          <div className="eyebrow">FinDocGPT · Phase 7</div>
-          <h1>Agentic SEC research with citations you can inspect.</h1>
+          <h1>FinDocGPT</h1>
           <p className="lede">
-            Query the hybrid retriever, reranker, and numeric reasoning path from a single chat UI, then expand the
-            supporting filing excerpts below each answer.
+            Ask analyst questions about the latest 10-K filings of ten large-cap companies. An agent plans the research,
+            retrieves and reranks filing excerpts, runs a grounded calculator when numbers are needed, and removes any
+            sentence it cannot verify against the sources.
           </p>
-
           <form
             className="query-card"
             onSubmit={(event) => {
@@ -113,42 +99,31 @@ export default function App() {
             }}
           >
             <label htmlFor="query">Ask a filing question</label>
-            <textarea
-              id="query"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              rows={4}
-              placeholder="Ask about margin, revenue drivers, comparisons, or a computed metric."
-            />
-
-            <div className="query-actions">
-              <div className="sample-row">
-                {SAMPLE_QUERIES.map((sample) => (
-                  <button key={sample} type="button" className="sample-chip" onClick={() => setQuery(sample)}>
-                    {sample}
-                  </button>
-                ))}
-              </div>
-              <button className="primary-button" type="submit" disabled={loading}>
-                {loading ? 'Answering...' : 'Run FinDocGPT'}
+            <div className="input-wrapper">
+              <textarea
+                id="query"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    runQuery();
+                  }
+                }}
+                rows={3}
+              />
+              <button className="icon-button" type="submit" disabled={loading} title="Ask">
+                {loading ? '…' : '↑'}
               </button>
             </div>
+            <div className="sample-row">
+              {SAMPLE_QUERIES.map((sample) => (
+                <button key={sample} type="button" className="sample-chip" onClick={() => setQuery(sample)}>
+                  {sample}
+                </button>
+              ))}
+            </div>
           </form>
-
-          <div className="quick-facts">
-            <div>
-              <span>Routing</span>
-              <strong>Factual, comparison, or computation</strong>
-            </div>
-            <div>
-              <span>Retrieval</span>
-              <strong>BM25 + dense RRF + reranker</strong>
-            </div>
-            <div>
-              <span>Verification</span>
-              <strong>Claims stripped unless supported</strong>
-            </div>
-          </div>
         </section>
 
         <section className="answer-column">
@@ -156,53 +131,36 @@ export default function App() {
             <div className="panel-header">
               <div>
                 <div className="eyebrow">Answer</div>
-                <h2>{response ? 'Verified result' : 'Waiting for a query'}</h2>
+                <h2>{response ? `Route: ${response.route}` : loading ? 'Researching…' : 'Waiting for a question'}</h2>
               </div>
-              {response ? <span className={`route-badge route-${response.route}`}>{response.route}</span> : null}
             </div>
-
             {error ? <div className="error-box">{error}</div> : null}
-
             {response ? (
               <>
-                <p className="route-reason">{response.route_reason}</p>
                 <div className="answer-block">
-                  <span className="label">Returned answer</span>
-                  <p>{response.answer}</p>
+                  <p><Citations text={response.answer} /></p>
                 </div>
-
-                {response.computation ? (
+                {response.calculation ? (
                   <div className="computation-card">
-                    <span className="label">Numeric computation</span>
-                    <p>{response.computation.calculation}</p>
-                    <div className="metric-grid">
-                      <div>
-                        <span>Table</span>
-                        <strong>{response.computation.table_id}</strong>
-                      </div>
-                      <div>
-                        <span>Ticker</span>
-                        <strong>{response.computation.ticker}</strong>
-                      </div>
-                      <div>
-                        <span>Metric</span>
-                        <strong>{response.computation.metric}</strong>
-                      </div>
-                    </div>
+                    <span className="label">Calculator</span>
+                    <p><strong>{response.calculation.label}: {response.calculation.formatted}</strong></p>
+                    <p className="muted">{response.calculation.expression} where{' '}
+                      {response.calculation.operands.map((o) => `${o.name} = ${o.value_text} (${o.label})`).join('; ')}</p>
                   </div>
                 ) : null}
-
-                <div className="answer-block subdued">
-                  <span className="label">Draft answer before verification</span>
-                  <p>{response.draft_answer}</p>
-                </div>
-
-                {response.verdicts?.length ? <VerdictSummary verdicts={response.verdicts} /> : null}
+                {response.removed_claims.length ? (
+                  <div className="answer-block subdued">
+                    <span className="label">Removed by verification</span>
+                    <ul>{response.removed_claims.map((c) => <li key={c}>{c}</li>)}</ul>
+                  </div>
+                ) : null}
+                <details className="answer-block subdued">
+                  <summary className="label">Agent trace</summary>
+                  <Trace trace={response.trace} />
+                </details>
               </>
             ) : (
-              <div className="empty-state">
-                <p>The backend will return the verified answer, the reasoning path, and the supporting source chunks.</p>
-              </div>
+              <div className="empty-state"><p>The verified answer, calculator output and agent trace appear here.</p></div>
             )}
           </article>
 
@@ -210,21 +168,18 @@ export default function App() {
             <div className="panel-header">
               <div>
                 <div className="eyebrow">Citations</div>
-                <h2>Expandable source excerpts</h2>
+                <h2>Source excerpts</h2>
               </div>
               <span className="counter">{response?.sources?.length || 0} sources</span>
             </div>
-
             {response?.sources?.length ? (
               <div className="source-list">
                 {response.sources.map((source, index) => (
-                  <SourceCard key={`${source.chunk_id}-${index}`} source={source} index={index} />
+                  <SourceCard key={source.chunk_id} source={source} open={index === 0} />
                 ))}
               </div>
             ) : (
-              <div className="empty-state compact">
-                Source chunks will appear here after a query runs.
-              </div>
+              <div className="empty-state compact">Sources appear after a question runs.</div>
             )}
           </article>
         </section>
