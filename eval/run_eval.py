@@ -94,7 +94,7 @@ def score(config: str, predictions: list[dict], gold: list[dict], use_judge: boo
 
 
 def write_report() -> None:
-    names = ("v1", "v2-run1", "v2", "v2-tablenotes", "no_rewrite", "no_verify", "rules_planner")
+    names = ("v1", "v2", "no_rewrite", "no_verify", "rules_planner")
     systems = [(name, _read(RESULTS / f"{name}_scores.json")) for name in names]
     # A partial run (e.g. --ids) is not comparable with full runs, so only complete score files are reported.
     systems = [(n, s) for n, s in systems if s and len(s["items"]) == len(load_gold())]
