@@ -8,5 +8,6 @@
 | BM25 only | 0.36 | 0.44 | 0.38 | 0.45 | 0.20 |
 | Dense only | 0.44 | 0.59 | 0.47 | 0.62 | 0.30 |
 | Hybrid (RRF) | 0.40 | 0.55 | 0.42 | 0.57 | 0.25 |
-| Hybrid + rerank | 0.62 | 0.66 | 0.65 | 0.68 | 0.41 |
-| Hybrid + rerank + company filter | 0.57 | 0.66 | 0.60 | 0.68 | 0.40 |
+| Hybrid + rerank | 0.65 | 0.72 | 0.68 | 0.75 | 0.42 |
+| Hybrid + rerank + company filter | 0.62 | 0.65 | 0.65 | 0.68 | 0.41 |
+| v2 agent (plan + decomposition + rewrite) | 0.69 | 0.80 | 0.70 | 0.82 | 0.44 |

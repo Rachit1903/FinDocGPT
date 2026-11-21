@@ -18,23 +18,21 @@ S1 = calculator: (a / b - c / d) * 100 with a = 13,910 and c = 6,112 (segment op
 Measured on a hand-verified gold set of 45 questions (details under [Evaluation](#evaluation)). v1 is the original
 pipeline; its predictions were frozen before the rewrite and scored with the same harness.
 
-| | v1 | v2 (run 1) |
-|---|---|---|
-| Answer correctness (independent LLM judge vs. gold key facts) | 0.17 | **0.47** |
-| Key-fact coverage | 0.28 | **0.66** |
-| Faithfulness (answer sentences supported by retrieved context) | 0.78 | **0.95** |
-| Numeric accuracy on computation questions (exact value) | 0.20 | **1.00** |
-| Gold evidence recall in the generator's context | 0.15 | **0.76** |
-| Route accuracy | 0.65 | **1.00** |
-| Abstains on unanswerable questions | 0.60 | **1.00** |
+| | v1 | v2 run 1 | **v2** |
+|---|---|---|---|
+| Answer correctness (independent LLM judge vs. gold key facts) | 0.17 | 0.47 | **0.55** |
+| Key-fact coverage | 0.28 | 0.66 | **0.75** |
+| Faithfulness (answer sentences supported by retrieved context) | 0.78 | 0.95 | **0.97** |
+| Numeric accuracy on computation questions (exact value) | 0.20 | 1.00 | **1.00** |
+| Gold evidence recall in the generator's context | 0.15 | 0.76 | **0.80** |
+| Route accuracy | 0.65 | 1.00 | **1.00** |
+| False abstention on answerable questions (lower is better) | 0.15 | 0.05 | **0.03** |
+| Abstains on unanswerable questions | 0.60 | 1.00 | **1.00** |
 
-Full tables: [eval/results/REPORT.md](eval/results/REPORT.md) and [RETRIEVAL_ABLATION.md](eval/results/RETRIEVAL_ABLATION.md).
-
-> **Status:** "v2 (run 1)" is the agent before the last round of changes, which came from error analysis of that run:
-> the revision loop, calculator intermediate values and period hint, verification against all sources, and the
-> planner's MD&A sub-query hint. Those changes were checked on part of the set (on the 20 questions re-run: key-fact
-> coverage 0.68 → 0.72, evidence recall 0.72 → 0.82, correctness unchanged at 0.55), but the full re-run stopped at
-> Groq's free-tier daily token limit. It resumes with `python -m eval.run_eval`.
+"v2 run 1" is the agent before the last round of changes, which came from error analysis of that run (see below).
+Per category, computation correctness went 0.60 → 0.90 and comparison 0.50 → 0.60, while factual dipped 0.40 → 0.35
+(two answers dropped below the 2-of-3 key-fact bar and one rose above it; with 20 questions, that is one net answer). Full tables:
+[eval/results/REPORT.md](eval/results/REPORT.md) and [RETRIEVAL_ABLATION.md](eval/results/RETRIEVAL_ABLATION.md).
 
 ## How it works
 
@@ -97,17 +95,30 @@ sentence-level faithfulness to the context the system retrieved.
 | v2 corpus, BM25 only | 0.44 | 0.20 |
 | v2 corpus, dense only (bge-base) | 0.59 | 0.30 |
 | v2 corpus, hybrid RRF | 0.55 | 0.25 |
-| v2 corpus, hybrid + cross-encoder rerank | **0.66** | **0.41** |
-| v2 corpus, + company filter | 0.66 | 0.40 |
+| v2 corpus, hybrid + cross-encoder rerank | 0.72 | 0.42 |
+| v2 corpus, hybrid + rerank + company filter | 0.65 | 0.41 |
+| v2 agent context (planner sub-queries, decomposition, rewrites) | **0.80** | **0.44** |
 
 Most of the retrieval gain comes from the new corpus (section-aware chunks with contextual headers and normalized
-tables) and the reranker. RRF on its own scores slightly below dense-only at this depth, and the company filter adds
-little because the contextual headers already identify the company. In the full agent, planner decomposition and
-query rewriting raise evidence recall to 0.76.
+tables) and the reranker. RRF on its own scores slightly below dense-only at this depth. A hard company filter
+slightly *hurts* single-query recall, because the contextual headers already identify the company and the filter
+shrinks the candidate pool for comparison questions. The agent's per-entity sub-queries and rewrites add 8 points on top.
 
 **Error analysis of run 1** drove the last changes. Computation answers gave the delta without the per-year values. One
 calculation used the wrong pair of years. The verifier deleted correct sentences that had the wrong citation, wiping
-out three answers. And single-query retrieval missed MD&A "primarily due to" passages.
+out three answers. And single-query retrieval missed MD&A "primarily due to" passages. The fixes were a revise step
+before removal, verification against all sources, intermediate values and a period hint in the calculator, and an MD&A
+sub-query hint in the planner.
+
+**Remaining errors in the final run.** One answer called a rise in NVIDIA inventory provisions "down", and the verifier
+did not catch the direction word. One Uber profitability question was a retrieval miss: the gold evidence never reached
+the context. The planner replaced the question with a single generic MD&A-style sub-query ("operating income increased
+compared to prior year primarily due to"), which matched other passages well enough (rerank 0.52) that no rewrite
+triggered, and the agent, correctly given its context, abstained. Always keeping the original question as a sub-query
+is the obvious next fix.
+Factual answers sometimes give the driver without the figure the gold expects. The judge itself once returned a
+misspelled JSON key (`key_fats`); scoring now locates verdict lists by content and treats malformed verdicts as missing,
+never as zero.
 
 **Limitations.** 45 questions is a small set, and the gold answers were written by one annotator. Prompts were refined
 after looking at failures on this same set, with no separate held-out split, so the v2 numbers are optimistic for

@@ -10,6 +10,7 @@ LLM judge:      key-fact coverage against the gold reference, and faithfulness (
 
 from __future__ import annotations
 
+import json
 import re
 from typing import Any
 
@@ -69,6 +70,18 @@ CONTEXT the candidate system retrieved, return JSON:
   Sentences that only say information is unavailable count as supported."""
 
 
+def _verdict_list(raw: dict[str, Any], field: str) -> list[dict[str, Any]] | None:
+    """Find the judge's list of verdict objects by content, not key name (models misspell keys, e.g. "key_fats")."""
+    for value in raw.values():
+        if isinstance(value, list) and value and all(isinstance(v, dict) and field in v for v in value):
+            return value
+    return None
+
+
+def _truthy(value: Any) -> bool:
+    return value.strip().lower() == "true" if isinstance(value, str) else bool(value)
+
+
 def judge(llm: LLM, question: str, gold: dict[str, Any], answer: str, contexts: list[str]) -> dict[str, Any]:
     sentences = split_sentences(answer) or [answer]
     facts = "\n".join(f"{i}. {f}" for i, f in enumerate(gold["key_facts"], 1))
@@ -80,8 +93,13 @@ def judge(llm: LLM, question: str, gold: dict[str, Any], answer: str, contexts: 
         raw = llm.complete_json(JUDGE_SYSTEM, user)
     except LLMError as exc:
         return {"error": str(exc)}
-    covered = [bool(f.get("covered")) for f in raw.get("key_facts", [])][: len(gold["key_facts"])]
-    supported = [bool(s.get("supported_by_context")) for s in raw.get("sentences", [])][: len(sentences)]
+    fact_items = _verdict_list(raw, "covered")
+    sentence_items = _verdict_list(raw, "supported_by_context")
+    if fact_items is None or len(fact_items) < len(gold["key_facts"]):
+        # A malformed verdict must not silently score as "nothing covered"; leave it out of the means instead.
+        return {"error": f"malformed judge verdict: {json.dumps(raw)[:300]}"}
+    covered = [_truthy(f.get("covered")) for f in fact_items][: len(gold["key_facts"])]
+    supported = [_truthy(s.get("supported_by_context")) for s in sentence_items or []][: len(sentences)]
     return {
         "fact_coverage": sum(covered) / len(gold["key_facts"]) if gold["key_facts"] else None,
         "contradicts_gold": bool(raw.get("contradicts_gold")),

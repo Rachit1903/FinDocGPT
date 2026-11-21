@@ -28,17 +28,24 @@
   "mrr": 0.252
  },
  "Hybrid + rerank": {
-  "recall@5": 0.625,
-  "recall@8": 0.662,
-  "hit@5": 0.65,
-  "hit@8": 0.675,
-  "mrr": 0.406
+  "recall@5": 0.65,
+  "recall@8": 0.725,
+  "hit@5": 0.675,
+  "hit@8": 0.75,
+  "mrr": 0.419
  },
  "Hybrid + rerank + company filter": {
-  "recall@5": 0.575,
-  "recall@8": 0.662,
-  "hit@5": 0.6,
+  "recall@5": 0.625,
+  "recall@8": 0.65,
+  "hit@5": 0.65,
   "hit@8": 0.675,
-  "mrr": 0.403
+  "mrr": 0.407
+ },
+ "v2 agent (plan + decomposition + rewrite)": {
+  "recall@5": 0.688,
+  "recall@8": 0.8,
+  "hit@5": 0.7,
+  "hit@8": 0.825,
+  "mrr": 0.438
  }
 }

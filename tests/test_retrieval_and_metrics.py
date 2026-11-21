@@ -27,3 +27,17 @@ def test_numeric_correct_uses_tolerance_and_ignores_sign_wording():
 def test_evidence_recall_is_whitespace_and_currency_insensitive():
     contexts = ["| AWS | $107,556 |  128,725 |"]
     assert evidence_recall(["| AWS | 107,556 | 128,725 |", "missing sentence"], contexts) == 0.5
+
+
+def test_judge_tolerates_misspelled_keys_and_rejects_malformed_verdicts():
+    from eval.metrics import judge
+    from tests.fakes import FakeLLM
+
+    gold = {"reference_answer": "Margin rose 2.8 pp.", "key_facts": ["26.7% in 2024", "29.5% in 2025", "+2.8 pp"]}
+    misspelled = {"key_fats": [{"id": i, "covered": True} for i in (1, 2, 3)], "contradicts_gold": False,
+                  "sentences": [{"id": 1, "supported_by_context": "true"}]}
+    verdict = judge(FakeLLM(json_responses=[misspelled]), "q", gold, "Margin rose from 26.7% to 29.5%.", ["ctx"])
+    assert verdict["fact_coverage"] == 1.0 and verdict["faithfulness"] == 1.0
+
+    verdict = judge(FakeLLM(json_responses=[{"contradicts_gold": False}]), "q", gold, "Answer.", ["ctx"])
+    assert "error" in verdict and "fact_coverage" not in verdict
