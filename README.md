@@ -135,6 +135,7 @@ cp .env.example .env                       # add GROQ_API_KEY and SEC_USER_AGENT
 
 python -m src.ingestion.run_ingestion      # download the pinned 10-Ks from EDGAR and build data/corpus/chunks.jsonl
 python -m src.retrieval.build_index        # embed into Qdrant (embedded at data/index/; ~20 min on CPU, incremental after)
+python -m src.ingestion.export_readable    # optional: data/readable/<TICKER>.md, the corpus as the agent sees it
 python -m pytest -q                        # offline tests: no network or models needed
 
 uvicorn backend.main:app --port 8000       # API: POST /api/chat {"query": "..."}
