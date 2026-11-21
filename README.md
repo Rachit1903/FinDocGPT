@@ -110,8 +110,10 @@ out three answers. And single-query retrieval missed MD&A "primarily due to" pas
 before removal, verification against all sources, intermediate values and a period hint in the calculator, and an MD&A
 sub-query hint in the planner.
 
-**Remaining errors in the final run.** One answer called a rise in NVIDIA inventory provisions "down", and the verifier
-did not catch the direction word. One Uber profitability question was a retrieval miss: the gold evidence never reached
+**Remaining errors in the final run.** One answer called a rise in NVIDIA inventory provisions "down", and the LLM
+verifier did not catch the direction word. A deterministic check now overrides the verifier for "rose/fell from A to B" and
+"B (down from A)" statements whose figures contradict the word; over all 259 answer sentences from every run it flags
+only that sentence. One Uber profitability question was a retrieval miss: the gold evidence never reached
 the context. The planner replaced the question with a single generic MD&A-style sub-query ("operating income increased
 compared to prior year primarily due to"), which matched other passages well enough (rerank 0.52) that no rewrite
 triggered, and the agent, correctly given its context, abstained. Always keeping the original question as a sub-query
@@ -119,6 +121,15 @@ is the obvious next fix.
 Factual answers sometimes give the driver without the figure the gold expects. The judge itself once returned a
 misspelled JSON key (`key_fats`); scoring now locates verdict lists by content and treats malformed verdicts as missing,
 never as zero.
+
+**Tried and reverted: table notes** (`v2-tablenotes` in the report). Manual testing found a "right number, wrong
+meaning" error: asked about Apple's and NVIDIA's Item 5, the agent called the value of $100 invested five years earlier
+a "stock price", because the paragraph explaining the table was a separate chunk. The experiment attached the prose
+preceding each table as a `Note:` line and told the writer and verifier to check that each figure is described as its
+source defines it. It fixed that case, but correctness fell 0.55 → 0.50 on the gold set. Tables without a real
+introduction picked up unrelated MD&A text, and with it the calculator swapped Amazon's year columns. The stricter
+verifier also rejected a partly correct answer, so the change was reverted. A narrower version (attach only paragraphs
+that introduce the table, such as "The following graph…") is the next thing to try.
 
 **Limitations.** 45 questions is a small set, and the gold answers were written by one annotator. Prompts were refined
 after looking at failures on this same set, with no separate held-out split, so the v2 numbers are optimistic for

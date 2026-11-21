@@ -51,6 +51,40 @@ def split_sentences(text: str) -> list[str]:
     return [s.strip(" -*•") for s in SENTENCE_SPLIT.split(text.strip()) if s.strip(" -*•")]
 
 
+AMOUNT = r"(\$\s?\(?[\d,]+(?:\.\d+)?\)?(?:\s*(?:billion|million|thousand))?|\(?[\d,]+(?:\.\d+)?\)?\s?%)"
+UP_WORDS = r"(?:increas\w*|rose|rise|grew|grow\w*|up|higher|improv\w*|expand\w*)"
+DOWN_WORDS = r"(?:decreas\w*|fell|fall\w*|declin\w*|down|lower|dropp?\w*|contract\w*)"
+# "<word> from A to B" and "B (<word> from A)" — the two ways answers state a change between reported figures.
+FROM_TO = re.compile(rf"\b({UP_WORDS}|{DOWN_WORDS})\b[^.;]{{0,30}}?\bfrom\s+{AMOUNT}[^.;]{{0,50}}?\bto\s+{AMOUNT}", re.I)
+B_FROM_A = re.compile(rf"{AMOUNT}[^.;]{{0,50}}?\(\s*({UP_WORDS}|{DOWN_WORDS})\s+from\s+{AMOUNT}", re.I)
+SCALE = {"thousand": 1e-3, "million": 1.0, "billion": 1e3}
+
+
+def _amount(text: str) -> tuple[float, str] | None:
+    """Parse '$7.2 billion' / '(6)%' / '$(2,656)' into (value in millions or percent, kind)."""
+    kind = "%" if "%" in text else "$"
+    scale = next((v for k, v in SCALE.items() if k in text.lower()), 1.0)
+    digits = re.search(r"[\d,]+(?:\.\d+)?", text)
+    if not digits:
+        return None
+    value = float(digits.group().replace(",", "")) * (scale if kind == "$" else 1.0)
+    return (-value if "(" in text else value), kind
+
+
+def direction_conflict(sentence: str) -> str | None:
+    """Deterministic check: a direction word that contradicts the two figures it relates ("$7.2B, down from $3.7B")."""
+    checks = [(m.group(1), m.group(2), m.group(3)) for m in FROM_TO.finditer(sentence)]
+    checks += [(m.group(2), m.group(3), m.group(1)) for m in B_FROM_A.finditer(sentence)]
+    for word, old_text, new_text in checks:
+        old, new = _amount(old_text), _amount(new_text)
+        if not old or not new or old[1] != new[1] or old[0] == new[0]:
+            continue
+        says_up = re.fullmatch(UP_WORDS, word, re.I) is not None
+        if says_up != (new[0] > old[0]):
+            return f"'{word}' contradicts the figures ({old_text.strip()} -> {new_text.strip()})"
+    return None
+
+
 def is_abstention(text: str) -> bool:
     return bool(ABSTAIN_PATTERN.search(text)) and len(text) < 400
 
@@ -94,7 +128,11 @@ class Verifier:
         for i, sentence in enumerate(sentences, 1):
             cites = [int(n) for n in CITATION.findall(sentence)]
             item = by_id.get(i)
-            if item is None:
+            conflict = direction_conflict(sentence)
+            if conflict:
+                # Overrides the LLM verdict: the verifier model missed exactly this in the eval (NVIDIA provisions).
+                verdicts.append(Verdict(sentence, False, cites, conflict))
+            elif item is None:
                 # Unverifiable (verifier failed): keep only sentences that cite a source.
                 verdicts.append(Verdict(sentence, bool(cites), cites, "not verified (verifier unavailable)"))
             else:

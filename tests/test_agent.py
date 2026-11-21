@@ -77,3 +77,17 @@ def test_question_about_company_outside_corpus_abstains_without_retrieval():
     agent, retriever = _agent({"route": "factual", "tickers": [], "in_corpus": False, "sub_queries": []}, "", {})
     result = agent.run("What was Tesla's automotive gross margin?")
     assert result["abstained"] and retriever.queries == []
+
+
+def test_verifier_rejects_direction_words_that_contradict_the_figures():
+    from src.agent.answer import direction_conflict
+
+    assert direction_conflict("Provisions were $7.2 billion in fiscal 2026 (down from $3.7 billion in fiscal 2025)[S1].")
+    assert direction_conflict("Gross margin fell from 69.76% in fiscal 2024 to 68.82% in fiscal 2025[S1].") is None
+    assert direction_conflict("Operating income increased from $(2,656) million to $3,792 million[S1].") is None
+
+    # The LLM verifier says "supported", but the deterministic check overrides it.
+    llm_says_ok = {"verdicts": [{"id": 1, "supported": True, "reason": "numbers appear in S1"}]}
+    verdicts = Verifier(FakeLLM([llm_says_ok])).verify(
+        "Provisions were $7.2 billion in fiscal 2026 (down from $3.7 billion in fiscal 2025)[S1].", [("S1", "...")])
+    assert not verdicts[0].supported and "contradicts" in verdicts[0].reason
