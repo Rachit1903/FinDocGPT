@@ -15,23 +15,28 @@ S1 = calculator: (a / b - c / d) * 100 with a = 13,910 and c = 6,112 (segment op
 
 ## Results
 
-Measured on a hand-verified gold set of 45 questions (details under [Evaluation](#evaluation)). The baseline is the
-project's original single-pass pipeline; its predictions were frozen before the rewrite and scored with the same harness (`v1` in the result files).
+Measured on a hand-verified golden dataset of 45 questions: 40 answerable, 5 unanswerable (details under
+[Evaluation](#evaluation)). Brackets give 95% bootstrap confidence intervals over the 40 answerable questions. With a
+set this small, one question moves a score by 2.5 points.
 
-| | Baseline | **FinDocGPT** |
-|---|---|---|
-| Answer correctness (independent LLM judge vs. gold key facts) | 0.17 | **0.55** |
-| Key-fact coverage | 0.28 | **0.75** |
-| Faithfulness (answer sentences supported by retrieved context) | 0.78 | **0.97** |
-| Numeric accuracy on computation questions (exact value) | 0.20 | **1.00** |
-| Gold evidence recall in the generator's context | 0.15 | **0.80** |
-| Route accuracy | 0.65 | **1.00** |
-| False abstention on answerable questions (lower is better) | 0.15 | **0.03** |
-| Abstains on unanswerable questions | 0.60 | **1.00** |
+| Metric | Result | 95% CI | Scored on |
+|---|---|---|---|
+| Answer correctness (LLM judge: ≥2/3 gold key facts, no contradiction) | **0.55** | [0.40, 0.70] | 22/40 |
+| Key-fact recall | **0.75** | [0.64, 0.85] | 40 questions |
+| Faithfulness (answer sentences supported by retrieved context) | **0.975** | [0.94, 1.00] | 40 questions |
+| Context recall (gold evidence reaches the generator) | **0.80** | [0.68, 0.91] | 40 questions |
+| Numeric accuracy (computation, exact value) | **1.00** | | 10/10 |
+| Routing accuracy | **1.00** | | 40/40 |
+| Abstention on unanswerable questions | **1.00** | | 5/5 |
+| False abstention on answerable questions (lower is better) | **0.025** | | 1/40 |
 
 By category, correctness is 0.90 on computation, 0.60 on comparison and 0.35 on factual questions. Factual answers most
-often name the driver but omit a figure the gold expects. Full tables: [eval/results/REPORT.md](eval/results/REPORT.md)
-and [RETRIEVAL_ABLATION.md](eval/results/RETRIEVAL_ABLATION.md).
+often name the driver but omit a figure the gold expects. Per-question scores:
+[eval/results/v2_scores.json](eval/results/v2_scores.json).
+
+**Latency and cost.** Median latency is 18 s per question, and p90 is 46 s. Both were measured on Groq's free tier, so they include
+waits for its 8K-tokens-per-minute rate limit. Each question takes 1–6 LLM calls, median 3 (plan, answer, verify);
+rewrite, calculator and revision calls are added only when they trigger. Embedding and reranking run locally on CPU.
 
 ## How it works
 
@@ -56,11 +61,11 @@ The agent is a [LangGraph](src/agent/graph.py) state machine:
 
 | Step | What it does | Why |
 |---|---|---|
-| **Ingestion** ([parser](src/ingestion/parser.py), [tables](src/ingestion/tables.py)) | Splits each 10-K into ~300-token prose chunks *within* an Item section, and rebuilds every financial table from its HTML cells (colspans, split `$`/`%`/`)` cells, units rows, two-level year headers). Each chunk gets a contextual header: company, fiscal year, Item, subsection. | Filing sentences rarely name the company ("Services net sales increased…"), so without the header, ten filers' MD&A text looks the same. The baseline indexed 6,700 HTML fragments with a median of 66 tokens. |
-| **Planner** ([planner.py](src/agent/planner.py)) | An LLM picks the route (factual / comparison / computation) and the companies, and splits comparisons into one sub-query per entity, flagging which ones live in tables. Tickers are cross-checked by deterministic name matching, and a rule-based planner is the fallback. | The baseline's regex router sent "drivers of Services *net sales*" to the numeric agent because the question mentions a metric. |
+| **Ingestion** ([parser](src/ingestion/parser.py), [tables](src/ingestion/tables.py)) | Splits each 10-K into ~300-token prose chunks *within* an Item section, and rebuilds every financial table from its HTML cells (colspans, split `$`/`%`/`)` cells, units rows, two-level year headers). Each chunk gets a contextual header: company, fiscal year, Item, subsection. | Filing sentences rarely name the company ("Services net sales increased…"), so without the header, ten filers' MD&A text looks the same. Per-paragraph fragments (median ~66 tokens) lose this context entirely. |
+| **Planner** ([planner.py](src/agent/planner.py)) | An LLM picks the route (factual / comparison / computation) and the companies, and splits comparisons into one sub-query per entity, flagging which ones live in tables. Tickers are cross-checked by deterministic name matching, and a rule-based planner is the fallback. | Keyword routing fails on questions like "drivers of Services *net sales*", which mention a metric but ask for an explanation, not a number. Comparisons need one search per entity, or one side crowds out the other. |
 | **Retrieval** ([store.py](src/retrieval/store.py)) | BM25 and `bge-base-en-v1.5` dense search in Qdrant (embedded on disk, or a server via `QDRANT_URL`), both filtered by company, fused with reciprocal-rank fusion, then reranked with `bge-reranker-base`. | RRF avoids mixing incompatible score scales; filters stop ten filers' boilerplate from competing. |
 | **Corrective loop** | If a sub-query's best rerank score is below 0.2, the LLM rewrites it in 10-K vocabulary and retrieval runs once more. The better attempt is kept. | A cheap self-correction step that only triggers on weak evidence. |
-| **Calculator** ([calculator.py](src/agent/calculator.py)) | The LLM picks operands (each with exact cell text and source chunk) and an arithmetic expression. Each operand must appear verbatim in its cited chunk, the expression is evaluated with a safe AST evaluator, and if validation fails the error is fed back for one retry. | The LLM never does arithmetic, and every number traces to a table cell. The baseline parsed table rows with regexes and produced values like "39000966.0%". |
+| **Calculator** ([calculator.py](src/agent/calculator.py)) | The LLM picks operands (each with exact cell text and source chunk) and an arithmetic expression. Each operand must appear verbatim in its cited chunk, the expression is evaluated with a safe AST evaluator, and if validation fails the error is fed back for one retry. | The LLM never does arithmetic, and every number traces to a table cell. Regex parsing of table rows breaks on split `$`/`)` cells and mislabelled year columns. |
 | **Generation + verification** ([answer.py](src/agent/answer.py)) | `gpt-oss-120b` answers only from numbered sources with per-sentence citations and never does arithmetic itself. A second model checks every sentence against the sources. Rejected sentences go back to the writer with the checker's reasons for one revision, and whatever is still unsupported is removed. | Faithfulness is enforced at runtime, not just measured offline. The revision step avoids throwing away answers that only had a wrong citation or one overreaching clause. |
 
 Every LLM call goes through [llm.py](src/llm.py): Groq's OpenAI-compatible API, JSON mode, rate-limit backoff, and a
@@ -72,25 +77,25 @@ content-addressed disk cache (re-running the eval only pays for steps whose inpu
 10 computation, at least 3 per company) plus 5 unanswerable ones (a company outside the corpus, a year the filing doesn't
 cover, a forecast the filing doesn't make, data only in the proxy statement). Each answerable item has:
 
-- a reference answer written from the filing text, not generated by the pipeline (the baseline's references were produced by
-  the same retriever and LLM being evaluated, so the system was graded against itself);
+- a reference answer written by hand from the filing text, never generated by the system, so the system is not graded
+  against itself;
 - 2–4 atomic **key facts** used for correctness scoring;
 - **verbatim evidence strings** copied from the filing. Retrieval is scored by whether the evidence reaches the
-  generator's context, independent of chunk IDs. Table rows match on label plus all numbers, so systems that render
-  tables differently are scored fairly;
+  generator's context, independent of chunk IDs, so the gold set survives re-chunking. Table rows match on label plus
+  all numbers;
 - for computation items, an **expected value** computed by hand from the filing tables (e.g. Google Cloud margin
   change = 13,910/58,705 − 6,112/43,229 = +9.56 pp).
 
 **Metrics** ([eval/metrics.py](eval/metrics.py)): deterministic where possible (route accuracy, evidence recall, numeric
 accuracy within max(0.15, 2%), abstention). An LLM judge (`qwen3.8-27b`, a different model family from the generator,
-blind to which system produced the answer) scores key-fact coverage, contradictions with the gold answer, and
-sentence-level faithfulness to the context the system retrieved.
+to avoid self-preference) scores key-fact recall, contradictions with the gold answer, and sentence-level faithfulness
+to the context the system retrieved. Confidence intervals are bootstrap percentiles (10,000 resamples of the 40
+answerable questions).
 
 **Retrieval ablation** (no LLM, same 40 questions; recall of gold evidence in the top 8 chunks):
 
 | Configuration | recall@8 | MRR |
 |---|---|---|
-| Baseline pipeline (6.7K HTML-fragment chunks, bge-small) | 0.15 | 0.10 |
 | BM25 only | 0.44 | 0.20 |
 | Dense only (bge-base) | 0.59 | 0.30 |
 | Hybrid RRF | 0.55 | 0.25 |
@@ -98,8 +103,7 @@ sentence-level faithfulness to the context the system retrieved.
 | Hybrid + rerank + company filter | 0.65 | 0.41 |
 | Full agent context (planner sub-queries, decomposition, rewrites) | **0.80** | **0.44** |
 
-Most of the retrieval gain comes from the new corpus (section-aware chunks with contextual headers and normalized
-tables) and the reranker. RRF on its own scores slightly below dense-only at this depth. A hard company filter
+The cross-encoder reranker is the largest single gain. RRF on its own scores slightly below dense-only at this depth. A hard company filter
 slightly *hurts* single-query recall, because the contextual headers already identify the company and the filter
 shrinks the candidate pool for comparison questions. The agent's per-entity sub-queries and rewrites add 8 points on top.
 
@@ -157,7 +161,6 @@ Or, after building the corpus and index once: `docker compose up --build`.
 Reproduce the evaluation:
 
 ```bash
-python -m eval.run_eval --system v1        # re-score the frozen baseline predictions
 python -m eval.run_eval                    # run + score the agent, write eval/results/REPORT.md
 python -m eval.run_eval --config no_verify # ablation: skip claim verification (reuses cached generations)
 python -m eval.retrieval_ablation          # retrieval-only ablation, no LLM calls
